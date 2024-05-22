@@ -24,7 +24,7 @@ namespace pfc
             preFactor *= sqrt((FP)3) / ((FP)2.0 * Constants<FP>::pi());
         }
 
-        FP rate(const FP& chi)
+        forceinline FP rate(const FP& chi)
         {
             FP a = ((FP)2.0) / ((FP)3.0 * chi);
 
@@ -216,7 +216,7 @@ namespace pfc
             return preFactor * (integral1 + integral2);
         }
 
-        FP inv_cdf(FP r, FP chi)
+        forceinline FP inv_cdf(FP r, FP chi)
         {
             double* g = g_emis;
             int N = 192;
@@ -227,8 +227,8 @@ namespace pfc
 
             int index_a = std::max(std::min((int)std::floor(logA), 29), -30);
 
-            FP x1 = pow(1.5, -index_a);
-            FP x2 = pow(1.5, -(index_a + 1));
+            FP x1 = pow(1.5, (FP)(-index_a));        // !!!
+            FP x2 = pow(1.5, (FP)(-(index_a + 1)));  // !!!
             x_target = 1.0 / x_target;
 
             FP delta;
