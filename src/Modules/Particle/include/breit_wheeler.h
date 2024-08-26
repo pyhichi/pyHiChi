@@ -1,6 +1,7 @@
 #pragma once
 #include "Constants.h"
 #include "FP.h"
+#include <cstdint>
 
 #include <cmath>
 
@@ -20,7 +21,7 @@ namespace pfc
         //Corless R. M., Gonnet G. H., Hare D. E., Jeffrey D. J., & Knuth D. E.,
         //On the LambertW function. (1996).
         //Advances in Computational mathematics, 5(1), 329-359
-        FP lambertW(FP x) {
+        forceinline FP lambertW(FP x) {
             FP w = x;
             if (x > 1.8)
             {
@@ -28,6 +29,7 @@ namespace pfc
                 FP lnlnx = log(lnx);
                 w = lnx - lnlnx + lnlnx / lnx;
             }
+#pragma unroll(25)
             for (int i = 0; i < 25; i++) {
                 FP expw = exp(w);
                 FP wexpw = w * expw;
@@ -49,7 +51,7 @@ namespace pfc
             preFactor *= sqrt((FP)3) / ((FP)2.0 * Constants<FP>::pi());
         }
 
-        FP rate(const FP& chi)
+        forceinline FP rate(const FP& chi)
         {
             FP a = ((FP)2.0) / ((FP)3.0 * chi);
 
@@ -200,7 +202,7 @@ namespace pfc
             return preFactor * std::max(-integral1 * 0.25 + integral2, 0.0);
         }
 
-        FP inv_cdf(FP r, FP chi)
+        forceinline FP inv_cdf(FP r, FP chi)
         {
             double* g = g_pair;
             int N = 128;
@@ -244,8 +246,8 @@ namespace pfc
 
             index_f += (index_a + 30) * N;
 
-            FP x1 = pow(1.5, -index_a);
-            FP x2 = pow(1.5, -(index_a + 1));
+            FP x1 = pow(1.5, (FP)(-index_a));         // !!!
+            FP x2 = pow(1.5, (FP)(-(index_a + 1)));   // !!!
             x_target = 1.0 / x_target;
 
             FP y0 = 0.05 * pow(2.0, -(62) * 0.2);
@@ -263,8 +265,9 @@ namespace pfc
                     + (x_target - x1) / (x2 - x1) * g[index_f + 1 + N];
                 FP x0 = z0 * chi;
                 FP coeff = y0 * (pow(x0, (FP)-1.5) * exp(((FP)2.0)/((FP)3.0 * x0)));
-                delta = ((FP)4.0)/((FP)9.0 * chi * 
-                    lambertW(((FP)4.0) / ((FP)9.0) * pow(coeff / r, ((FP)2.0)/((FP)3.0))));
+                FP lw = lambertW(((FP)4.0) / ((FP)9.0) * pow(coeff / r, ((FP)2.0) / ((FP)3.0)));
+
+                delta = ((FP)4.0)/((FP)9.0 * chi * lw);
             }
             return delta;
         }

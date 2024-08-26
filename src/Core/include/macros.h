@@ -1,5 +1,19 @@
 #pragma once
 
+#ifndef __USE_OMP__
+    #define OMP_GET_MAX_THREADS() 1
+#else
+    #include <omp.h>
+    #define OMP_GET_MAX_THREADS() omp_get_max_threads()
+#endif
+
+#ifndef __USE_OMP__
+#define OMP_GET_THREAD_NUM() 0
+#else
+#include <omp.h>
+#define OMP_GET_THREAD_NUM() omp_get_thread_num()
+#endif
+
 #ifdef _MSC_VER
     #define forceinline __forceinline
 #elif defined(__GNUC__)
@@ -12,6 +26,12 @@
     #endif
 #else
     #define forceinline inline
+#endif
+
+#ifndef __USE_OMP__
+#define OMP_GET_WTIME() 0
+#else
+#define OMP_GET_WTIME() omp_get_wtime()
 #endif
 
 
@@ -33,3 +53,4 @@
     #define OMP_FOR_SIMD()  PRAGMA(omp parallel for)
     #define OMP_SIMD()  PRAGMA(ivdep)
 #endif
+    
